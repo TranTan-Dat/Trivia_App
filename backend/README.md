@@ -1,5 +1,9 @@
 # Backend - Trivia API
-
+The backend for this Trivia app is a lightweight Flask application designed to power a web-based quiz game. 
+It leverages SQLAlchemy to define and manage the database, which stores various trivia questions, categories. 
+Player not only answer the question, but also create question and answer, select the difficult point and category type.
+Through a set of well-defined API endpoints, the app provides access to quiz content, supports gameplay functionality.
+This setup creates a seamless experience for users, enabling interactive gameplay and efficient data retrieval directly from the database.
 ## Setting up the Backend
 
 ### Install Dependencies
@@ -71,6 +75,10 @@ One note before you delve into your tasks: for each endpoint, you are expected t
 
 You will need to provide detailed documentation of your API endpoints including the URL, request parameters, and the response body. Use the example below as a reference.
 
+## Overview
+This API provides endpoints for managing questions and categories for a trivia application. The API is built with Flask and uses SQLAlchemy for database interactions.
+### Base URL
+`http://127.0.0.1:5000`
 ### Documentation Example
 
 `GET '/api/v1.0/categories'`
@@ -90,15 +98,158 @@ You will need to provide detailed documentation of your API endpoints including 
 }
 ```
 
+`GET '/api/v1.0/questions'`
+- Fetches a paginated list of questions.
+- Request Arguments:
+    - `page` (integer): The page number to get data.
+- Returns: An object with the keys questions, total_questions, categories, and current_category.
+
+```json
+{
+  "success": true,
+  "questions": [
+    {
+      "id": 1,
+      "question": "What is the capital of France?",
+      "answer": "Paris",
+      "category": 1,
+      "difficulty": 1
+    },
+    ...
+    {
+      "id": 4,
+      "question": "What is the capital of Vietnam?",
+      "answer": "HaNoi",
+      "category": 1,
+      "difficulty": 1
+    }
+  ],
+  "total_questions": 100,
+  "categories": {
+    "1": "Science",
+    "2": "Art",
+    "3": "Geography",
+    "4": "History",
+    "5": "Entertainment",
+    "6": "Sports"
+  },
+  "current_category": null
+}
+```
+
+`DELETE '/api/v1.0/questions/<int:question_id>'`
+- Delete question by its id input.
+- Request Arguments: None, just need id from url
+- Returns: An object with the key deleted indicating the ID of the deleted question.
+```json 
+    {"deleted":4,"success":true}
+```
+- `4` is the id from url
+
+`POST '/api/v1.0/questions'`
+- Creates a new question
+- request body:
+```json 
+{"question": "What is the capital of Vietnam?", "answer": "HaNoi", "difficulty": 1, "category": "3"}
+```
+- Return an example object like:
+```json
+{"created":34,"success":true}
+```
+
+`POST '/api/v1.0/questions/search'`
+- Searches for questions by text input.
+- Request Body:
+```json
+{"searchTerm": "capita"}
+```
+- Return example object:
+```json
+{
+    "current_category": null,
+    "questions": [
+        {
+            "answer": "Paris",
+            "category": 1,
+            "difficulty": 1,
+            "id": 28,
+            "question": "What is the capital of France?"
+        },
+        {
+            "answer": "HaNoi",
+            "category": 3,
+            "difficulty": 1,
+            "id": 34,
+            "question": "What is the capital of Vietnam?"
+        }
+    ],
+    "success": true,
+    "total_questions": 2
+}
+```
+
+`GET '/api/v1.0/categories/<int:category_id>/questions'`
+- Get all questions that belong to a specific category.
+- Request Arguments: `id` - integer
+- Return An object with the keys questions, total_questions, and current_category.
+```json
+{
+    "current_category": "Science",
+    "questions": [
+        {
+            "answer": "The Liver",
+            "category": 1,
+            "difficulty": 4,
+            "id": 20,
+            "question": "What is the heaviest organ in the human body?"
+        },
+        {
+            "answer": "Alexander Fleming",
+            "category": 1,
+            "difficulty": 3,
+            "id": 21,
+            "question": "Who discovered penicillin?"
+        },
+        {
+            "answer": "Blood",
+            "category": 1,
+            "difficulty": 4,
+            "id": 22,
+            "question": "Hematology is a branch of medicine involving the study of what?"
+        }
+    ],
+    "success": true,
+    "total_questions": 3
+}
+```
+
+`POST '/api/v1.0/quizzes'`
+- Retrieves a random question for the quiz, avoiding previously asked questions.
+- Request Body:
+```json
+{"previous_questions":[9],"quiz_category":{"type":"History","id":"4"}}
+```
+- Return an object with the key question indicating the next question for the quiz and list of previous question Id user already answered.
+```json 
+{
+    "question": {
+        "answer": "George Washington Carver",
+        "category": 4,
+        "difficulty": 2,
+        "id": 12,
+        "question": "Who invented Peanut Butter?"
+    },
+    "success": true
+}
+```
+
 ## Testing
-
-Write at least one test for the success and at least one error behavior of each endpoint using the unittest library.
-
 To deploy the tests, run
 
 ```bash
-dropdb trivia_test
-createdb trivia_test
-psql trivia_test < trivia.psql
-python test_flaskr.py
+dropdb trivia
+createdb trivia
+psql trivia < trivia.psql
+python3 test_flaskr.py
+
 ```
